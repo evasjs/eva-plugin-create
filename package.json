@@ -1,0 +1,15 @@
+{
+  "name": "eva-server-plugin-create-plugin",
+  "version": "1.0.0",
+  "description": "eva server plugin create plugin",
+  "main": "index.js",
+  "author": "Eason",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "devDependencies": {
+    "expect": "^1.20.2",
+    "mocha": "^3.4.2"
+  }
+}
