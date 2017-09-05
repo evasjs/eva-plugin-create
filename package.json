@@ -1,15 +1,26 @@
 {
   "name": "eva-server-plugin-create-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "eva server plugin create plugin",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "jsnext:main": "src/index.js",
   "author": "Eason",
   "license": "MIT",
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "build": "rimraf lib && babel src --out-dir lib"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-object-assign": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-runtime": "^6.26.0",
     "expect": "^1.20.2",
     "mocha": "^3.4.2"
+  },
+  "dependencies": {
+    "rimraf": "^2.6.1"
   }
 }

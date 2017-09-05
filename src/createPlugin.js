@@ -57,13 +57,21 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
         next();
       },
       'format/search'(Models, { req, next }) {
-        const { k, s, keywords } = req.query;
+        const { k, s, keywords, sort, offset, limit, ...others } = req.query;
         const kw = k || s || keywords;
         const paths = Models[namespace].schema.obj;
         req.locals.query.$or = [];
         Object.keys(paths).forEach((name) => {
           if (paths[name].query) {
-            req.locals.query.$or.push({ [name]: new RegExp(kw, 'igm') });
+            // fuzzy search
+            if (kw) {
+              req.locals.query.$or.push({ [name]: new RegExp(kw, 'igm') });
+            }
+
+            // exact search
+            if (Object.keys(others).indexOf(name) !== -1) {
+              req.locals.query.$or.push({ [name]: others[name] });
+            }
           }
         });
         next();
