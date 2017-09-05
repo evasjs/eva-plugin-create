@@ -74,6 +74,12 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
             }
           }
         });
+
+        // delete $or if empty
+        if (req.locals.query.$or.length === 0) {
+          delete req.locals.query.$or;
+        }
+
         next();
       },
     },
