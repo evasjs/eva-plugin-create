@@ -69,9 +69,16 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
             }
 
             // exact search
-            //  support a.b = c
-            if (Object.keys(others).indexOf(name.split('.')[0]) !== -1) {
+            if (Object.keys(others).indexOf(name) !== -1) {
               req.locals.query.$or.push({ [name]: others[name] });
+            } else {
+              // @TODO
+              for (let key in others) {
+                //  support a.b = c, and begin with a
+                if (key.indexOf(name) === 0) {
+                  req.locals.query.$or.push({ [key]: others[key] });
+                }
+              }
             }
           }
         });
