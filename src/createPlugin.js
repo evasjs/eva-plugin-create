@@ -69,7 +69,8 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
             }
 
             // exact search
-            if (Object.keys(others).indexOf(name) !== -1) {
+            //  support a.b = c
+            if (Object.keys(others).indexOf(name.split('.')[0]) !== -1) {
               req.locals.query.$or.push({ [name]: others[name] });
             }
           }
