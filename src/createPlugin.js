@@ -79,7 +79,16 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
               for (let key in others) {
                 //  support a.b = c, and begin with a
                 if (key.indexOf(name) === 0) {
-                  req.locals.query.$or.push({ [key]: others[key] });
+                  const v = others[key];
+                  if (Array.isArray(v)) {
+                    req.locals.query.$or.push({ [key]: { $in: v } });
+                  } else {
+                    if (['true', 'false', ''].includes(v)) {
+                      req.locals.query.$or.push({ [key]: ['true', ''].includes(v) ? true : false });
+                    } else {
+                      req.locals.query.$or.push({ [key]: v });
+                    }
+                  }
                 }
               }
             }
