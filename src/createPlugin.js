@@ -73,7 +73,13 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
 
             // exact search
             if (Object.keys(others).indexOf(name) !== -1) {
-              req.locals.query.$or.push({ [name]: others[name] });
+              if (Array.isArray(others[name])) {
+                req.locals.query.$or.push({ [name]: { $in: others[name] } });
+              } else if (['true', 'false', ''].includes(others[name])) {
+                req.locals.query.$or.push({ [name]: ['true', ''].includes(others[name]) ? true : false });
+              } else {
+                req.locals.query.$or.push({ [name]: others[name] });
+              }
             } else {
               // @TODO
               for (let key in others) {
