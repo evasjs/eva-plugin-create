@@ -1,6 +1,6 @@
 {
   "name": "eva-server-plugin-create-plugin",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "eva server plugin create plugin",
   "main": "lib/index.js",
   "jsnext:main": "src/index.js",
@@ -18,9 +18,7 @@
     "babel-preset-env": "^1.6.0",
     "babel-runtime": "^6.26.0",
     "expect": "^1.20.2",
-    "mocha": "^3.4.2"
-  },
-  "dependencies": {
+    "mocha": "^3.4.2",
     "rimraf": "^2.6.1"
   }
 }

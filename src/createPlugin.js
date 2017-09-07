@@ -104,7 +104,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
         const model = Model[namespace];
 
         model
-          .count(query)
+          .count(Object.assign({}, query, req.user ? { owner: req.user } : {}))
           .exec((err, total) => {
             if (err) return next(err);
 
