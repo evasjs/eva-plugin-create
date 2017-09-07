@@ -16,7 +16,10 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
     namespace,
 
     models: {
-      schema,
+      schema: {
+        ...schema,
+        owner: { type: 'ObjectId', ref: 'User' },
+      },
       options: {
         timestamps: true,
         safe: true,
@@ -106,7 +109,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
             if (err) return next(err);
 
             model
-              .find(query)
+              .find(Object.assign({}, query, req.user ? { owner: req.user } : {}))
               .sort(sort)
               .skip(offset)
               .limit(limit)
@@ -143,7 +146,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
             }
           });
 
-        const object = new Model(_object);
+        const object = new Model(Object.assign(_object, req.user ? { owner: req.user } : {}));
         object.save((err) => {
           if (err) return next(err);
 
@@ -156,7 +159,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
         const { select = {} } = req.locals;
 
         Models[namespace]
-          .findOne({ _id: id })
+          .findOne(Object.assign({ _id: id }, req.user ? { owner: req.user } : {}))
           .select(select)
           .exec((err, object) => {
             if (err) return next(err);
@@ -171,7 +174,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
         const paths = Model.schema;
 
         Model
-          .findOne({ _id: id })
+          .findOne(Object.assign({ _id: id }, req.user ? { owner: req.user } : {}))
           .exec((err, object) => {
             if (err) return next(err);
 
@@ -195,7 +198,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
         const { id } = req.params;
 
         return Models[namespace]
-          .remove({ _id: id })
+          .remove(Object.assign({ _id: id }, req.user ? { owner: req.user } : {}))
           .exec(error => (error ? next(error) : res.sendStatus(204)));
       },
     },
@@ -208,7 +211,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
       [`${route}/:id`]: {
         get: retrieve.concat(['locals', 'retrieve']),
         put: update.concat(['locals', 'update']),
-        // delete: del.concat(['locals', 'delete']),
+        delete: del.concat(['locals', 'delete']),
       },
     },
   };
