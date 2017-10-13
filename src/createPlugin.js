@@ -2,7 +2,7 @@
  * @Author: eason
  * @Date:   2017-07-09T14:47:00+08:00
  * @Last modified by:   eason
- * @Last modified time: 2017-07-09T19:03:38+08:00
+ * @Last modified time: 2017-10-14T03:16:59+08:00
  */
 module.exports = function createPlugin(route, namespace, schema, options = {}) {
   const {
@@ -91,8 +91,8 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
                   const $in = [];
                   const $nin = [];
                   for (const v of others[name]) {
-                    if (typeof v === 'string' && v[0] === '!') {
-                      $nin.push(v);
+                    if (v[0] === '!') {
+                      $nin.push(v.slice(1));
                     } else {
                       $in.push(v);
                     }
@@ -106,14 +106,14 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
                   if ($nin.length > 0) {
                     conditions.$nin = $nin;
                   }
-                  
+
                   req.locals.query.$and.push({ [name]: conditions });
                 } else if (['true', 'false', ''].includes(others[name])) {
                   req.locals.query.$and.push({ [name]: ['true', ''].includes(others[name]) ? true : false });
                 } else {
                   // support value not equal @1: ne
                   if (others[name][0] === '!') {
-                    req.locals.query.$and.push({ [name]: { $ne: others[name] } });
+                    req.locals.query.$and.push({ [name]: { $ne: others[name].slice(1) } });
                   } else {
                     req.locals.query.$and.push({ [name]: others[name] });
                   }
@@ -123,7 +123,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
               // @TODO
               for (let key in others) {
                 //  support a.b = c, and begin with a
-                if (key.indexOf(name) === 0) {
+                if (key.indexOf(name) === 0 && key[name.length] === '.') {
                   const v = others[key];
                   if (Array.isArray(v)) {
                     req.locals.query.$and.push({ [key]: { $in: v } });
