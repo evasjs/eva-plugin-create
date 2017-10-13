@@ -73,7 +73,19 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
 
             // exact search
             if (Object.keys(others).indexOf(name) !== -1) {
-              if (Array.isArray(others[name])) {
+              const range = `${others[name]}`.split('-');
+
+              // 1 range search
+              if (range.length === 2 && !!range[1]) {
+                const [gte, lt] = [new Date(range[0]), new Date(range[1])];
+
+                // 1.1 date range
+                if (gte.getFullYear() > 1024 & lt.getFullYear() > 1024) {
+                  req.locals.query.$or.push({ [name]: { $gte: gte, $lt: lt } });
+                } {
+                  req.locals.query.$or.push({ [name]: { $gte: range[0], $lt: range[1] } });
+                }
+              } else if (Array.isArray(others[name])) {
                 req.locals.query.$or.push({ [name]: { $in: others[name] } });
               } else if (['true', 'false', ''].includes(others[name])) {
                 req.locals.query.$or.push({ [name]: ['true', ''].includes(others[name]) ? true : false });
