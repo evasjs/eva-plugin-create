@@ -85,12 +85,39 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
                 //} else {
                 req.locals.query.$and.push({ [name]: { $gte: range[0], $lt: range[1] } });
                 //}
-              } else if (Array.isArray(others[name])) {
-                req.locals.query.$and.push({ [name]: { $in: others[name] } });
-              } else if (['true', 'false', ''].includes(others[name])) {
-                req.locals.query.$and.push({ [name]: ['true', ''].includes(others[name]) ? true : false });
               } else {
-                req.locals.query.$and.push({ [name]: others[name] });
+                if (Array.isArray(others[name])) {
+                  // support value not equal @2: nin
+                  const $in = [];
+                  const $nin = [];
+                  for (const v of others[name]) {
+                    if (typeof v === 'string' && v[0] === '!') {
+                      $nin.push(v);
+                    } else {
+                      $in.push(v);
+                    }
+                  }
+
+                  const conditions = {};
+                  if ($in.length > 0) {
+                    conditions.$in = $in;
+                  }
+
+                  if ($nin.length > 0) {
+                    conditions.$nin = $nin;
+                  }
+                  
+                  req.locals.query.$and.push({ [name]: conditions });
+                } else if (['true', 'false', ''].includes(others[name])) {
+                  req.locals.query.$and.push({ [name]: ['true', ''].includes(others[name]) ? true : false });
+                } else {
+                  // support value not equal @1: ne
+                  if (others[name][0] === '!') {
+                    req.locals.query.$and.push({ [name]: { $ne: others[name] } });
+                  } else {
+                    req.locals.query.$and.push({ [name]: others[name] });
+                  }
+                }
               }
             } else {
               // @TODO
