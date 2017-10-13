@@ -63,12 +63,12 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
         const { k, s, keywords, sort, offset, limit, ...others } = req.query;
         const kw = k || s || keywords;
         const paths = Models[namespace].schema.obj;
-        req.locals.query.$or = [];
+        req.locals.query.$and = [];
         [...Object.keys(paths), 'createdAt', 'updatedAt'].forEach((name) => {
           if (['createdAt', 'updatedAt'].indexOf(name) !== -1 || paths[name].query) {
             // fuzzy search
             if (kw) {
-              req.locals.query.$or.push({ [name]: new RegExp(kw, 'igm') });
+              req.locals.query.$and.push({ [name]: new RegExp(kw, 'igm') });
             }
 
             // exact search
@@ -81,16 +81,16 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
 
                 // 1.1 date range
                 // if (gte.getFullYear() > 1024 & lt.getFullYear() > 1024) {
-                //  req.locals.query.$or.push({ [name]: { $gte: gte, $lt: lt } });
+                //  req.locals.query.$and.push({ [name]: { $gte: gte, $lt: lt } });
                 //} else {
-                req.locals.query.$or.push({ [name]: { $gte: range[0], $lt: range[1] } });
+                req.locals.query.$and.push({ [name]: { $gte: range[0], $lt: range[1] } });
                 //}
               } else if (Array.isArray(others[name])) {
-                req.locals.query.$or.push({ [name]: { $in: others[name] } });
+                req.locals.query.$and.push({ [name]: { $in: others[name] } });
               } else if (['true', 'false', ''].includes(others[name])) {
-                req.locals.query.$or.push({ [name]: ['true', ''].includes(others[name]) ? true : false });
+                req.locals.query.$and.push({ [name]: ['true', ''].includes(others[name]) ? true : false });
               } else {
-                req.locals.query.$or.push({ [name]: others[name] });
+                req.locals.query.$and.push({ [name]: others[name] });
               }
             } else {
               // @TODO
@@ -99,12 +99,12 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
                 if (key.indexOf(name) === 0) {
                   const v = others[key];
                   if (Array.isArray(v)) {
-                    req.locals.query.$or.push({ [key]: { $in: v } });
+                    req.locals.query.$and.push({ [key]: { $in: v } });
                   } else {
                     if (['true', 'false', ''].includes(v)) {
-                      req.locals.query.$or.push({ [key]: ['true', ''].includes(v) ? true : false });
+                      req.locals.query.$and.push({ [key]: ['true', ''].includes(v) ? true : false });
                     } else {
-                      req.locals.query.$or.push({ [key]: v });
+                      req.locals.query.$and.push({ [key]: v });
                     }
                   }
                 }
@@ -113,9 +113,9 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
           }
         });
 
-        // delete $or if empty
-        if (req.locals.query.$or.length === 0) {
-          delete req.locals.query.$or;
+        // delete $and if empty
+        if (req.locals.query.$and.length === 0) {
+          delete req.locals.query.$and;
         }
 
         next();
