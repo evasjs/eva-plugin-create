@@ -64,7 +64,7 @@ module.exports = function createPlugin(route, namespace, schema, options = {}) {
         const kw = k || s || keywords;
         const paths = Models[namespace].schema.obj;
         req.locals.query.$or = [];
-        [Object.keys(paths), 'createdAt', 'updatedAt'].forEach((name) => {
+        [...Object.keys(paths), 'createdAt', 'updatedAt'].forEach((name) => {
           if (['createdAt', 'updatedAt'].indexOf(name) !== -1 || paths[name].query) {
             // fuzzy search
             if (kw) {
